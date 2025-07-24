@@ -1099,20 +1099,21 @@ async function runStreamableHttp(port: number = 3000) {
           id: message.id,
           result: {
             tools: [
-              { 
-                name: "protect_data", 
+              {
+                name: "protect_data",
                 description: "Protect sensitive data using CipherTrust CRDP",
                 inputSchema: {
                   type: "object",
                   properties: {
                     data: { type: "string", description: "The data to protect" },
-                    protection_policy_name: { type: "string", description: "Protection policy name" }
+                    protection_policy_name: { type: "string", description: "Protection policy name" },
+                    jwt: { type: "string", description: "JWT token for authorization (optional)" }
                   },
                   required: ["data", "protection_policy_name"]
                 }
               },
-              { 
-                name: "reveal_data", 
+              {
+                name: "reveal_data",
                 description: "Reveal protected data using CipherTrust CRDP",
                 inputSchema: {
                   type: "object",
@@ -1120,13 +1121,14 @@ async function runStreamableHttp(port: number = 3000) {
                     protected_data: { type: "string", description: "The protected data to reveal" },
                     username: { type: "string", description: "Name of the user for whom data will be revealed." },
                     protection_policy_name: { type: "string", description: "Policy name used for protection" },
-                    external_version: { type: "string", description: "Version header information." }
+                    external_version: { type: "string", description: "Version header information." },
+                    jwt: { type: "string", description: "JWT token for authorization (optional)" }
                   },
                   required: ["protected_data", "username", "protection_policy_name"]
                 }
               },
-              { 
-                name: "protect_bulk", 
+              {
+                name: "protect_bulk",
                 description: "Protect multiple data items in a single batch operation, per the CRDP spec.",
                 inputSchema: {
                   type: "object",
@@ -1142,13 +1144,14 @@ async function runStreamableHttp(port: number = 3000) {
                         required: ["protection_policy_name", "data"]
                       },
                       description: "Array of protection request objects"
-                    }
+                    },
+                    jwt: { type: "string", description: "JWT token for authorization (optional)" }
                   },
                   required: ["request_data"]
                 }
               },
-              { 
-                name: "reveal_bulk", 
+              {
+                name: "reveal_bulk",
                 description: "Reveal multiple protected data items in a single batch operation, per the CRDP spec.",
                 inputSchema: {
                   type: "object",
@@ -1167,23 +1170,24 @@ async function runStreamableHttp(port: number = 3000) {
                         required: ["protection_policy_name", "protected_data"]
                       },
                       description: "Array of reveal request objects"
-                    }
+                    },
+                    jwt: { type: "string", description: "JWT token for authorization (optional)" }
                   },
                   required: ["protected_data_array", "username"]
                 }
               },
-              { 
-                name: "get_metrics", 
+              {
+                name: "get_metrics",
                 description: "Get CRDP service metrics",
                 inputSchema: { type: "object", properties: {}, required: [] }
               },
-              { 
-                name: "check_health", 
+              {
+                name: "check_health",
                 description: "Check CRDP service health status",
                 inputSchema: { type: "object", properties: {}, required: [] }
               },
-              { 
-                name: "check_liveness", 
+              {
+                name: "check_liveness",
                 description: "Check CRDP service liveness",
                 inputSchema: { type: "object", properties: {}, required: [] }
               }
