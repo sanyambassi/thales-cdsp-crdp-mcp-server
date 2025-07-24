@@ -94,7 +94,9 @@ Protect a single piece of sensitive data.
 **Parameters:**
 - `data` (required): The sensitive data to protect
 - `protection_policy_name` (required): CRDP protection policy name
-- `jwt` (optional): JWT token for authorization
+- `jwt` (optional, required if CRDP is running with JWT verification enabled): JWT token for authorization
+
+> **Note:** If CRDP is running with JWT verification enabled, 'jwt' is required. 'username' is not supported for protect tools.
 
 **Example:**
 ```json
@@ -113,8 +115,9 @@ Protect multiple data items in a single batch operation.
 
 **Parameters:**
 - `request_data` (required): Array of protection request objects
-- `protection_policy_name` (required): CRDP protection policy name
-- `jwt` (optional): JWT token for authorization
+- `jwt` (optional, required if CRDP is running with JWT verification enabled): JWT token for authorization
+
+> **Note:** If CRDP is running with JWT verification enabled, 'jwt' is required. 'username' is not supported for protect tools.
 
 **Example:**
 ```json
@@ -142,10 +145,12 @@ Reveal a single piece of protected data.
 
 **Parameters:**
 - `protected_data` (required): The protected data to reveal
-- `username` (required): User identity for authorization
 - `protection_policy_name` (required): Policy name used for protection
-- `external_version` (optional): From the output of the protect operation when using a protection policy with external versioning
-- `jwt` (optional): JWT token for authorization
+- `external_version` (optional): Version information for the protected data
+- `username` (conditionally required): User identity for authorization (required if 'jwt' is not provided)
+- `jwt` (conditionally required): JWT token for authorization (required if 'username' is not provided)
+
+> **Note:** At least one of 'username' or 'jwt' is required for reveal operations.
 
 **Example:**
 ```json

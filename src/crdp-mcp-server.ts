@@ -51,11 +51,14 @@ const ProtectDataSchema = z.object({
 
 const RevealDataSchema = z.object({
   protected_data: z.string().describe("The protected data to reveal"),
-  username: z.string().describe("Name of the user for whom data will be revealed."),
   protection_policy_name: z.string().describe("Policy name used for protection"),
   external_version: z.string().optional().describe("Version header information."),
-  jwt: z.string().optional().describe("JWT token for authorization")
-});
+  username: z.string().optional().describe("User identity for authorization (optional, required if JWT is not provided)"),
+  jwt: z.string().optional().describe("JWT token for authorization (optional, required if username is not provided)")
+}).refine(
+  (data) => !!data.username || !!data.jwt,
+  { message: "At least one of 'username' or 'jwt' must be provided for reveal operations." }
+);
 
 const BulkProtectSchema = z.object({
   request_data: z.array(
@@ -68,7 +71,6 @@ const BulkProtectSchema = z.object({
 });
 
 const BulkRevealSchema = z.object({
-  username: z.string().describe("Name of the user for whom data will be revealed."),
   protected_data_array: z.array(
     z.object({
       protection_policy_name: z.string(),
@@ -77,8 +79,12 @@ const BulkRevealSchema = z.object({
       nonce: z.string().optional()
     })
   ).describe("Array of reveal request objects"),
-  jwt: z.string().optional().describe("JWT token for authorization")
-});
+  username: z.string().optional().describe("User identity for authorization (optional, required if JWT is not provided)"),
+  jwt: z.string().optional().describe("JWT token for authorization (optional, required if username is not provided)")
+}).refine(
+  (data) => !!data.username || !!data.jwt,
+  { message: "At least one of 'username' or 'jwt' must be provided for reveal operations." }
+);
 
 // CRDP Client with separate service and probes URLs
 class CRDPClient {
@@ -221,7 +227,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     tools: [
         {
           name: "protect_data",
-          description: "Protect sensitive data using CipherTrust CRDP",
+          description: "Protect sensitive data using CipherTrust CRDP. If CRDP is running with JWT verification enabled, 'jwt' is required. 'username' is not supported for protect tools.",
           inputSchema: {
             type: "object",
             properties: {
@@ -234,22 +240,22 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         },
         {
           name: "reveal_data",
-          description: "Reveal protected data using CipherTrust CRDP",
+          description: "Reveal protected data using CipherTrust CRDP. At least one of 'username' or 'jwt' must be provided for reveal operations.",
           inputSchema: {
             type: "object",
             properties: {
               protected_data: { type: "string", description: "The protected data to reveal" },
-              username: { type: "string", description: "Name of the user for whom data will be revealed." },
+              username: { type: "string", description: "User identity for authorization (required if JWT is not provided)" },
               protection_policy_name: { type: "string", description: "Policy name used for protection" },
               external_version: { type: "string", description: "Version header information." },
-              jwt: { type: "string", description: "JWT token for authorization (optional)" }
+              jwt: { type: "string", description: "JWT token for authorization (required if username is not provided)" }
             },
-            required: ["protected_data", "username", "protection_policy_name"]
+            required: ["protected_data", "protection_policy_name"]
           }
         },
         {
           name: "protect_bulk",
-          description: "Protect multiple data items in a single batch operation, per the CRDP spec.",
+          description: "Protect multiple data items in a single batch operation. Takes an array of data items to protect. If CRDP is running with JWT verification enabled, 'jwt' is required.",
           inputSchema: {
             type: "object",
             properties: {
@@ -258,42 +264,42 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
                 items: {
                   type: "object",
                   properties: {
-                    protection_policy_name: { type: "string" },
-                    data: { type: "string" }
+                    protection_policy_name: { type: "string", description: "Policy name to apply to this data item" },
+                    data: { type: "string", description: "Sensitive data to protect" }
                   },
                   required: ["protection_policy_name", "data"]
                 },
-                description: "Array of protection request objects"
+                description: "Array of protection request objects, each with data and policy"
               },
-              jwt: { type: "string", description: "JWT token for authorization (optional)" }
+              jwt: { type: "string", description: "JWT token for authorization (required if CRDP has JWT verification enabled)" }
             },
             required: ["request_data"]
           }
         },
         {
           name: "reveal_bulk",
-          description: "Reveal multiple protected data items in a single batch operation, per the CRDP spec.",
+          description: "Reveal multiple protected data items in a single batch operation. At least one of 'username' or 'jwt' must be provided for reveal operations.",
           inputSchema: {
             type: "object",
             properties: {
-              username: { type: "string", description: "Name of the user for whom data will be revealed." },
               protected_data_array: {
                 type: "array",
                 items: {
                   type: "object",
                   properties: {
-                    protection_policy_name: { type: "string" },
-                    protected_data: { type: "string" },
-                    external_version: { type: "string" },
-                    nonce: { type: "string" }
+                    protection_policy_name: { type: "string", description: "Policy name used for protection" },
+                    protected_data: { type: "string", description: "Protected data to reveal" },
+                    external_version: { type: "string", description: "Version information if using external versioning" },
+                    nonce: { type: "string", description: "Optional nonce value if required" }
                   },
                   required: ["protection_policy_name", "protected_data"]
                 },
-                description: "Array of reveal request objects"
+                description: "Array of reveal request objects, each with protected data and policy"
               },
-              jwt: { type: "string", description: "JWT token for authorization (optional)" }
+              username: { type: "string", description: "User identity for authorization (required if JWT is not provided)" },
+              jwt: { type: "string", description: "JWT token for authorization (required if username is not provided)" }
             },
-            required: ["protected_data_array", "username"]
+            required: ["protected_data_array"]
           }
         },
       {
@@ -909,7 +915,7 @@ function checkMissingParameters(toolName: string, args: any): string | null {
 
     case "reveal_data":
       if (!args.protected_data) missingParams.push("protected_data");
-      if (!args.username) missingParams.push("username");
+      if (!args.username && !args.jwt) missingParams.push("username or jwt");
       if (!args.protection_policy_name) missingParams.push("protection_policy_name");
       
       if (missingParams.length > 0) {
@@ -917,8 +923,12 @@ function checkMissingParameters(toolName: string, args: any): string | null {
         if (missingParams.includes("protected_data")) {
           elicitationMessage += "• protected_data: The encrypted/protected data to reveal (e.g., 'enc_abc123def456')\n";
         }
-        if (missingParams.includes("username")) {
+        if (missingParams.includes("username") && missingParams.includes("jwt")) {
+          elicitationMessage += "• username or jwt: The user identity for whom to reveal the data (required for CRDP authorization)\n";
+        } else if (missingParams.includes("username")) {
           elicitationMessage += "• username: The user identity for whom to reveal the data (required for CRDP authorization)\n";
+        } else if (missingParams.includes("jwt")) {
+          elicitationMessage += "• jwt: The JWT token for authorization (required for CRDP authorization)\n";
         }
         if (missingParams.includes("protection_policy_name")) {
           elicitationMessage += "• protection_policy_name: The policy used for protection (e.g., 'email_policy')\n";
@@ -968,7 +978,7 @@ function checkMissingParameters(toolName: string, args: any): string | null {
 
     case "reveal_bulk":
       if (!args.protected_data_array) missingParams.push("protected_data_array");
-      if (!args.username) missingParams.push("username");
+      if (!args.username && !args.jwt) missingParams.push("username or jwt");
       
       if (missingParams.length > 0) {
         elicitationMessage = `Missing required parameters for reveal_bulk: ${missingParams.join(", ")}.\n\n`;
@@ -979,8 +989,12 @@ function checkMissingParameters(toolName: string, args: any): string | null {
           elicitationMessage += "  - external_version (string, optional): Version information\n";
           elicitationMessage += "  - nonce (string, optional): Nonce value\n\n";
         }
-        if (missingParams.includes("username")) {
+        if (missingParams.includes("username") && missingParams.includes("jwt")) {
+          elicitationMessage += "• username or jwt: The user identity for whom to reveal the data (required for CRDP authorization)\n";
+        } else if (missingParams.includes("username")) {
           elicitationMessage += "• username: The user identity for whom to reveal the data (required for CRDP authorization)\n";
+        } else if (missingParams.includes("jwt")) {
+          elicitationMessage += "• jwt: The JWT token for authorization (required for CRDP authorization)\n";
         }
         elicitationMessage += "\nExample:\n";
         elicitationMessage += `{\n  "username": "john_doe",\n  "protected_data_array": [\n    {"protection_policy_name": "email_policy", "protected_data": "enc_abc123"},\n    {"protection_policy_name": "ssn_policy", "protected_data": "enc_def456"}\n  ]\n}`;
@@ -1101,7 +1115,7 @@ async function runStreamableHttp(port: number = 3000) {
             tools: [
               {
                 name: "protect_data",
-                description: "Protect sensitive data using CipherTrust CRDP",
+                description: "Protect sensitive data using CipherTrust CRDP. If CRDP is running with JWT verification enabled, 'jwt' is required. 'username' is not supported for protect tools.",
                 inputSchema: {
                   type: "object",
                   properties: {
@@ -1114,22 +1128,22 @@ async function runStreamableHttp(port: number = 3000) {
               },
               {
                 name: "reveal_data",
-                description: "Reveal protected data using CipherTrust CRDP",
+                description: "Reveal protected data using CipherTrust CRDP. At least one of 'username' or 'jwt' must be provided for reveal operations.",
                 inputSchema: {
                   type: "object",
                   properties: {
                     protected_data: { type: "string", description: "The protected data to reveal" },
-                    username: { type: "string", description: "Name of the user for whom data will be revealed." },
+                    username: { type: "string", description: "User identity for authorization (required if JWT is not provided)" },
                     protection_policy_name: { type: "string", description: "Policy name used for protection" },
                     external_version: { type: "string", description: "Version header information." },
-                    jwt: { type: "string", description: "JWT token for authorization (optional)" }
+                    jwt: { type: "string", description: "JWT token for authorization (required if username is not provided)" }
                   },
-                  required: ["protected_data", "username", "protection_policy_name"]
+                  required: ["protected_data", "protection_policy_name"]
                 }
               },
               {
                 name: "protect_bulk",
-                description: "Protect multiple data items in a single batch operation, per the CRDP spec.",
+                description: "Protect multiple data items in a single batch operation. Takes an array of data items to protect. If CRDP is running with JWT verification enabled, 'jwt' is required.",
                 inputSchema: {
                   type: "object",
                   properties: {
@@ -1138,42 +1152,42 @@ async function runStreamableHttp(port: number = 3000) {
                       items: {
                         type: "object",
                         properties: {
-                          protection_policy_name: { type: "string" },
-                          data: { type: "string" }
+                          protection_policy_name: { type: "string", description: "Policy name to apply to this data item" },
+                          data: { type: "string", description: "Sensitive data to protect" }
                         },
                         required: ["protection_policy_name", "data"]
                       },
-                      description: "Array of protection request objects"
+                      description: "Array of protection request objects, each with data and policy"
                     },
-                    jwt: { type: "string", description: "JWT token for authorization (optional)" }
+                    jwt: { type: "string", description: "JWT token for authorization (required if CRDP has JWT verification enabled)" }
                   },
                   required: ["request_data"]
                 }
               },
               {
                 name: "reveal_bulk",
-                description: "Reveal multiple protected data items in a single batch operation, per the CRDP spec.",
+                description: "Reveal multiple protected data items in a single batch operation. At least one of 'username' or 'jwt' must be provided for reveal operations.",
                 inputSchema: {
                   type: "object",
                   properties: {
-                    username: { type: "string", description: "Name of the user for whom data will be revealed." },
                     protected_data_array: {
                       type: "array",
                       items: {
                         type: "object",
                         properties: {
-                          protection_policy_name: { type: "string" },
-                          protected_data: { type: "string" },
-                          external_version: { type: "string" },
-                          nonce: { type: "string" }
+                          protection_policy_name: { type: "string", description: "Policy name used for protection" },
+                          protected_data: { type: "string", description: "Protected data to reveal" },
+                          external_version: { type: "string", description: "Version information if using external versioning" },
+                          nonce: { type: "string", description: "Optional nonce value if required" }
                         },
                         required: ["protection_policy_name", "protected_data"]
                       },
-                      description: "Array of reveal request objects"
+                      description: "Array of reveal request objects, each with protected data and policy"
                     },
-                    jwt: { type: "string", description: "JWT token for authorization (optional)" }
+                    username: { type: "string", description: "User identity for authorization (required if JWT is not provided)" },
+                    jwt: { type: "string", description: "JWT token for authorization (required if username is not provided)" }
                   },
-                  required: ["protected_data_array", "username"]
+                  required: ["protected_data_array"]
                 }
               },
               {
