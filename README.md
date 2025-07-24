@@ -225,6 +225,46 @@ Data protected successfully. Protected data: BcmX5McZK6BB
 
 For comprehensive testing instructions, see [testing](docs/testing.md).
 
+## Integration with AI Assistants
+
+This MCP server can be integrated with various AI assistants to enable secure data protection and revelation capabilities through natural language interactions.
+
+### Supported AI Assistants
+
+- **Cursor AI**
+- **Google Gemini**
+- **Claude Desktop**
+
+### Quick Setup
+
+All supported AI assistants use the same `mcp.json` configuration:
+
+```json
+{
+  "mcpServers": {
+    "crdp": {
+      "command": "node",
+      "args": ["/path/to/your/crdp-mcp-server/dist/crdp-mcp-server.js"],
+      "env": {
+        "CRDP_SERVICE_URL": "http://your-crdp-server:8090",
+        "CRDP_PROBES_URL": "http://your-crdp-server:8080",
+        "MCP_TRANSPORT": "stdio"
+      }
+    }
+  }
+}
+```
+
+### Usage Examples
+
+After configuration, you can use natural language commands like:
+
+- "Protect my email address john.doe@example.com using the email_policy"
+- "Reveal the protected data abc123def456 for user admin using protection policy ssn_policy"
+- "Check the health of my CRDP service"
+
+For detailed setup instructions and troubleshooting, see [AI Assistant Integration Guide](docs/ai-assistants.md).
+
 ## n8n Integration
 
 This project includes n8n workflow templates for creating conversational AI interfaces to the CRDP service:
@@ -232,7 +272,7 @@ This project includes n8n workflow templates for creating conversational AI inte
 ### **n8n Templates**
 
 - **`crdp_demo_mcp_server.json`**: MCP Server workflow that exposes CRDP tools
-- **`crdp_demo_mcp_client.json`**: MCP Client workflow with conversational AI interface
+- **`crdp_demo_mcp_client.json`**: MCP Client workflow with conversational AI interface. 
 **Note:** You will need an [OpenAI API key](https://platform.openai.com/api-keys) to use the conversational AI features. Sign up or generate a key at the OpenAI website.
 
 ### **Features**

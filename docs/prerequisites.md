@@ -99,15 +99,6 @@ npx ts-node src/crdp-mcp-server.ts
 1. Download from [git-scm.com](https://git-scm.com/)
 2. Run the installer
 
-**macOS:**
-```bash
-# Using Homebrew
-brew install git
-
-# Or using Xcode Command Line Tools
-xcode-select --install
-```
-
 **Linux:**
 ```bash
 # Ubuntu/Debian
@@ -137,37 +128,20 @@ You need access to a running CipherTrust RestFul Data Protection (CRDP) service 
 Ensure your system can reach the CRDP service endpoints:
 
 ```bash
-# Test connectivity to CRDP service
-curl -X GET http://your-crdp-server:8090/healthz
-
 # Test connectivity to probes endpoint
 curl -X GET http://your-crdp-server:8080/healthz
 ```
 
-### 3. Authentication (if required)
-
-If your CRDP service requires authentication:
-- Obtain valid credentials
-- Configure JWT tokens if needed
-- Ensure proper permissions for protect/reveal operations
-
 ## Development Tools (Optional)
 
-### 2. Code Editor
-
-Recommended editors:
-- **Visual Studio Code** with TypeScript extensions
-- **WebStorm** or **IntelliJ IDEA**
-- **Vim** or **Emacs** with TypeScript plugins
-
-### 3. HTTP Client
+### 1. HTTP Client
 
 For testing API endpoints:
 - **Postman**
 - **Insomnia**
 - **curl** (command line)
 
-### 4. MCP Inspector
+### 2. MCP Inspector
 
 For testing MCP protocol:
 - **Model Context Protocol Inspector**
@@ -185,26 +159,6 @@ For testing MCP protocol:
    ```
 3. **Verify installations**:
    ```cmd
-   node --version
-   npm --version
-   tsc --version
-   ```
-
-### macOS
-
-1. **Install Homebrew** (if not already installed):
-   ```bash
-   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-   ```
-
-2. **Install Node.js and TypeScript**:
-   ```bash
-   brew install node@18
-   npm install -g typescript
-   ```
-
-3. **Verify installations**:
-   ```bash
    node --version
    npm --version
    tsc --version

@@ -19,7 +19,7 @@ Before running tests, ensure:
    curl -X GET http://your-crdp-server:8080/healthz
    ```
 
-3. **Valid protection policies are configured** in your CRDP service
+3. **Protection policies are configured** in your CRDP service
 
 ## Testing Methods
 
@@ -376,28 +376,15 @@ curl -X POST http://localhost:3000/mcp \
    - **For HTTP transport**: Select "HTTP" and enter `http://localhost:3000/mcp`
 
 3. **Test Server Initialization**:
-   - Click "Initialize" to establish connection
-   - Verify server capabilities are listed
-
+   - Click "Connect" to establish connection
+   - Verify connection is successful
+   
 4. **Test Tools**:
    - Navigate to the "Tools" tab
    - Select a tool (e.g., `protect_data`)
    - Fill in the required parameters
-   - Click "Call" to execute
+   - Click "Run Tool" to execute
    - Verify the response
-
-5. **Test Prompts**:
-   - Navigate to the "Prompts" tab
-   - Select a prompt (e.g., `secure_data_processing`)
-   - Fill in optional parameters
-   - Click "Get" to retrieve the prompt
-   - Verify the response
-
-6. **Test Resources**:
-   - Navigate to the "Resources" tab
-   - Select a resource (e.g., `crdp_protection_policies`)
-   - Click "Read" to retrieve the resource
-   - Verify the content
 
 #### MCP Inspector Test Scenarios
 
@@ -429,73 +416,11 @@ curl -X POST http://localhost:3000/mcp \
 4. Call `get_metrics`
 5. Verify all monitoring tools return valid responses
 
-### 3. Automated Testing Scripts
-
-#### Create Test Script
-
-Create a file `test-server.js`:
-
-```javascript
-const axios = require('axios');
-
-const MCP_ENDPOINT = 'http://localhost:3000/mcp';
-
-async function testTool(name, arguments) {
-  try {
-    const response = await axios.post(MCP_ENDPOINT, {
-      jsonrpc: "2.0",
-      id: Date.now(),
-      method: "tools/call",
-      params: {
-        name,
-        arguments
-      }
-    });
-    
-    console.log(`✅ ${name}:`, response.data.result);
-    return response.data.result;
-  } catch (error) {
-    console.error(`❌ ${name}:`, error.response?.data || error.message);
-    return null;
-  }
-}
-
-async function runTests() {
-  console.log('🧪 Starting CRDP MCP Server Tests...\n');
-
-  // Test protect_data
-  await testTool('protect_data', {
-    data: 'john_doe@hiscompany.com',
-    protection_policy_name: 'email_policy'
-  });
-
-  // Test check_health
-  await testTool('check_health', {});
-
-  // Test get_metrics
-  await testTool('get_metrics', {});
-
-  console.log('\n🏁 Tests completed!');
-}
-
-runTests();
-```
+### 3. Automated Testing Script
 
 #### Run Automated Tests
 
-```bash
-# Install axios if not already installed
-npm install axios
-
-# Run tests
-node test-server.js
-```
-
-### 2. Automated Testing with test-server.js
-
-You can use the provided automated test script to quickly verify your MCP server and CRDP connectivity.
-
-**Location:** `scripts/test-server.js`
+**Test Script Location:** `scripts/test-server.js`
 
 #### How to Use
 
@@ -552,7 +477,7 @@ Enter username for reveal: testuser
 
 ## Testing Different Versioning Scenarios
 
-### 1. External Versioning Test
+### 1. External Versioning
 
 Test with a policy that returns external version:
 
@@ -589,7 +514,7 @@ curl -X POST http://localhost:3000/mcp \
 }
 ```
 
-### 2. Internal Versioning Test
+### 2. Internal Versioning
 
 Test with a policy that embeds version in protected data:
 
@@ -626,7 +551,7 @@ curl -X POST http://localhost:3000/mcp \
 }
 ```
 
-### 3. No Versioning Test
+### 3. Versioning Disabled
 
 Test with a policy that doesn't use versioning:
 
@@ -659,33 +584,6 @@ curl -X POST http://localhost:3000/mcp \
         "text": "Data protected successfully. Protected data: enc_BcmX5McZK6BB"
       }
     ]
-  }
-}
-```
-
-## Performance Testing
-
-### Load Testing
-
-Use a tool like Apache Bench (ab) or wrk to test server performance:
-
-```bash
-# Install Apache Bench (Ubuntu/Debian)
-sudo apt-get install apache2-utils
-
-# Test with 100 requests, 10 concurrent
-ab -n 100 -c 10 -p test-payload.json -T application/json http://localhost:3000/mcp/
-```
-
-Create `test-payload.json`:
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "tools/call",
-  "params": {
-    "name": "check_health",
-    "arguments": {}
   }
 }
 ```
@@ -752,28 +650,5 @@ Create a test report with:
 4. **Issues**: Any problems encountered
 5. **Performance**: Response times and throughput
 6. **Recommendations**: Suggested improvements
-
-## Continuous Testing
-
-### Integration with CI/CD
-
-Add testing to your CI/CD pipeline:
-
-```yaml
-# Example GitHub Actions workflow
-name: Test CRDP MCP Server
-on: [push, pull_request]
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '18'
-      - run: npm install
-      - run: npm run build
-      - run: npm test  # Add test script to package.json
-```
 
 This comprehensive testing guide ensures your CRDP MCP Server is thoroughly validated before deployment. 
