@@ -75,8 +75,21 @@ MCP_TRANSPORT=streamable-http npm start
 | `MCP_TRANSPORT` | Transport type (`stdio` or `streamable-http`) | `stdio` |
 | `MCP_PORT` | HTTP port (when using streamable-http) | `3000` |
 
-### Example Configuration
+### Setting Environment Variables
 
+**Windows (PowerShell):**
+```powershell
+$env:CRDP_SERVICE_URL="http://crdp-server:8090"
+$env:MCP_TRANSPORT="streamable-http"
+```
+
+**Windows (CMD):**
+```cmd
+set CRDP_SERVICE_URL=http://crdp-server:8090
+set MCP_TRANSPORT=streamable-http
+```
+
+**Linux/macOS:**
 ```bash
 export CRDP_SERVICE_URL="http://crdp-server:8090"
 export CRDP_PROBES_URL="http://crdp-server:8080"
@@ -96,7 +109,7 @@ Protect a single piece of sensitive data.
 - `protection_policy_name` (required): CRDP protection policy name
 - `jwt` (optional, required if CRDP is running with JWT verification enabled): JWT token for authorization
 
-> **Note:** If CRDP is running with JWT verification enabled, 'jwt' is required. 'username' is not supported for protect tools.
+> **Note:** If CRDP is running with JWT verification enabled, 'jwt' is required.
 
 **Example:**
 ```json
@@ -337,7 +350,7 @@ crdp-mcp-server/
 ├── n8n/                      # n8n workflow templates
 ├── package.json              # Project configuration
 ├── scripts/				  
-│	└── crdp-mcp-server.ts	  # Test Script
+│	└── test-server.ts	  # Test Script
 └── tsconfig.json             # TypeScript configuration
 ```
 
