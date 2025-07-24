@@ -15,7 +15,6 @@ Before running tests, ensure:
 2. **CRDP service is running and accessible**:
    ```bash
    # Test CRDP service connectivity
-   curl -X GET http://your-crdp-server:8090/healthz
    curl -X GET http://your-crdp-server:8080/healthz
    ```
 
