@@ -101,35 +101,38 @@ curl -X POST http://localhost:3000/mcp \
   }'
 ```
 
-### 2. JSON-RPC over stdio
+### JSON-RPC over stdio
 
-Start the server in stdio mode (default):
+Test the MCP server using JSON-RPC over stdio transport:
 
+1. **Start the server in stdio mode:**
 ```bash
-npm start
+node dist/crdp-mcp-server.js
 ```
 
-In a separate process or script, communicate using stdin/stdout:
+2. **In the same terminal session, send commands one by one:**
 
-**Initialization (Client -> Server)**:
+**Initialize the server:**
 ```json
-{"jsonrpc":"2.0","id":1,"method":"server/initialize","params":{"client_info":{"name":"TestClient","version":"1.0.0"}}}
+{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2024-11-05", "clientInfo": {"name": "test-client", "version": "1.0.0"}, "capabilities": {"tools": {}}}}
 ```
 
-**Initialized Notification (Server -> Client)**:
+**Send initialized notification:**
 ```json
-{"jsonrpc":"2.0","method":"server/initialized","params":{"server_info":{"name":"crdp-mcp-server","version":"1.0.0","protocol_version":"2025-06-18"}}}
+{"jsonrpc": "2.0", "method": "notifications/initialized"}
 ```
 
-**Get Tools List (Client -> Server)**:
+**List available tools:**
 ```json
-{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}
+{"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}}
 ```
 
-**Execute Health Check (Client -> Server)**:
+**Test health check:**
 ```json
 {"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"check_health","arguments":{}}}
 ```
+
+**Note:** Each command must be sent in the same terminal session where the server is running. Starting a new server instance for each command will lose the initialization state.
 
 ### 3. Automated Testing
 
