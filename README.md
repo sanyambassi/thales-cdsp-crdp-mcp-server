@@ -16,7 +16,7 @@ This MCP server enables AI applications and LLMs to securely protect and reveal 
 - **Data Protection**: Protect sensitive data using various CRDP policies
 - **Data Revelation**: Securely reveal protected data with proper authorization (username/jwt)
 - **Bulk Operations**: Process multiple data items in single batch operations
-- **Versioning Support**: Handles external, internal, and version disabled protection policies.
+- **Versioning Support**: Handles external versioned, internal versioned, and version disabled protection policies.
 - **Monitoring**: Health checks and metrics collection
 - **Multiple Transports**: Support for stdio and HTTP transports
 
@@ -130,7 +130,7 @@ Protect multiple data items in a single batch operation.
 - `request_data` (required): Array of protection request objects
 - `jwt` (optional, required if CRDP is running with JWT verification enabled): JWT token for authorization
 
-> **Note:** If CRDP is running with JWT verification enabled, 'jwt' is required. 'username' is not supported for protect tools.
+> **Note:** If CRDP is running with JWT verification enabled, 'jwt' is required.
 
 **Example:**
 ```json
