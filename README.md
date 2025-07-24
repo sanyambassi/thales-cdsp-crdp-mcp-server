@@ -1,4 +1,4 @@
-# CRDP MCP Server
+# Thales CDSP CRDP MCP Server
 
 A Model Context Protocol (MCP) server that allows interacting with the CipherTrust RestFul Data Protection (CRDP) service.
 
