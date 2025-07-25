@@ -4,11 +4,11 @@ A Model Context Protocol (MCP) server that allows interacting with the CipherTru
 
 ## Overview
 
-This MCP server enables AI applications and LLMs to securely protect and reveal sensitive data through the CipherTrust CRDP service. It supports both individual and bulk protect and reveal operations with comprehensive versioning support.
+This MCP server enables AI applications and LLMs to securely protect and reveal sensitive data through the CipherTrust CRDP service. It supports both individual and bulk protect and reveal operations with versioning support.
 
 ## Demo Videos
 
-- **Video 1**: [Link to be added] - Deployment and usage with Cursor AI
+- **Video 1**: [https://youtu.be/O2pQRoykaaU] - Deployment and usage with Cursor AI
 - **Video 2**: [Link to be added] - How to use the n8n workflows
 
 ## Features
