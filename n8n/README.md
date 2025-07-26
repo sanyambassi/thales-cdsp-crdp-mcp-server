@@ -18,6 +18,29 @@ There are two main workflows that work together:
 *   **Conversational Memory**: The agent can remember context from previous messages in the same session (e.g., you can set the service URL once).
 *   **Intelligent Tool Selection**: The agent is prompted to automatically use `bulk` operations when you provide multiple pieces of data.
 *   **Strict & Secure**: The agent is configured to always ask for required security parameters (`username`, `protection_policy_name`) and will not proceed without them.
+*   **Integration with AI assistants**: Use the following contents in mcp.json or settings.json for AI assistants like Cursor AI, Google gemini or CLaude desktop.
+
+1. Install supergateway with "npm" 
+```bash
+npm install supergateway
+```
+
+2. Setup the MCP server in your AI assistant:
+```json
+{
+  "mcpServers": {
+    "n8n_crdp_mcp_server": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "supergateway",
+        "--sse",
+        "http://localhost:5678/mcp/crdp" 
+      ]
+    }
+    }
+}
+```
 
 ## JWT Authentication
 
