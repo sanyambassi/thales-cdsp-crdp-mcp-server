@@ -9,7 +9,7 @@ This MCP server enables AI applications and LLMs to securely protect and reveal 
 ## Demo Videos
 
 - **Video 1**: [https://youtu.be/O2pQRoykaaU] - Deployment and usage with Cursor AI
-- **Video 2**: [Link to be added] - How to use the n8n workflows
+- **Video 2**: [https://youtu.be/ILNyWRYQUpw] - How to use the n8n workflows
 
 ## Features
 
