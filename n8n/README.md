@@ -10,6 +10,12 @@ There are two main workflows that work together:
 
 2.  **`MCP Server`**: This workflow acts as a bridge to the actual CRDP service. It exposes the core CRDP functions (protect, reveal, health checks, etc.) as a set of tools over the Model Context Protocol (MCP). The `MCP Client` calls these tools to perform its actions. The server expectes CRDP Service and Probes URLs from the client in order to forward the request to the correct CRDP port.
 
+
+## Demo Videos
+
+- **Walkthrough**: [https://youtu.be/ILNyWRYQUpw] - How to use the n8n workflows
+
+
 ## Key Features
 
 *   **Conversational Interface**: Protect and reveal data using natural language.
