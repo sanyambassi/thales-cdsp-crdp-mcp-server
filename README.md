@@ -13,7 +13,7 @@ This MCP server enables AI applications and LLMs to securely protect and reveal 
 
 ## Features
 
-- **Data Protection**: Protect sensitive data using various CRDP policies
+- **Data Protection**: Protect sensitive data using various Data Protection policies
 - **Data Revelation**: Securely reveal protected data with proper authorization (username/jwt)
 - **Bulk Operations**: Process multiple data items in single batch operations
 - **Versioning Support**: Handles external versioned, internal versioned, and version disabled protection policies.
